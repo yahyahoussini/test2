@@ -6,12 +6,20 @@ import type { Product } from '@/types';
 import Modal from './Modal';
 import CheckoutForm from './CheckoutForm';
 
+// A simple WhatsApp icon component
+const WhatsAppIcon = () => (
+  <svg height="24" width="24" viewBox="0 0 24 24" fill="white">
+    <path d="M16.75 13.96c.25.13.43.2.5.28.08.08.13.18.15.25.03.08.03.18 0 .28-.03.1-.08.18-.15.25-.08.08-.18.13-.28.15-.1.03-.2.03-.28 0-.1-.03-.18-.08-.25-.15-.08-.08-.13-.18-.15-.28a.48.48 0 0 1 0-.28c.03-.1.08-.18.15-.25.08-.08.18-.13.28-.15.1-.03.2-.03.28 0m-1.7-2.3c-.03 0-.05.03-.08.05-.08.03-.13.08-.18.15-.05.08-.08.13-.1.18-.03.05-.05.1-.05.15s0 .1.03.15c.03.05.05.1.1.15.05.05.1.08.15.1.05.03.1.05.15.05.05 0 .1 0 .15-.03.05-.03.1-.05.15-.1.05-.05.08-.1.1-.15.03-.05.05-.1.05-.15s0-.1-.03-.15a.46.46 0 0 0-.1-.15.46.46 0 0 0-.15-.1.5.5 0 0 0-.15-.05.4.4 0 0 0-.15-.03m-12.23 12.3c-2.43-2.1-3.85-5.2-3.85-8.43C.95 5.5 5.4 1 11.93 1c3.2 0 6.13 1.25 8.3 3.43 2.18 2.18 3.43 5.1 3.43 8.33 0 6.53-5.43 11.8-11.83 11.8-.18 0-.35-.03-.53-.05l-4.1.98.95-3.93c-.4-.6-.73-1.25-.98-1.9zm5.9-16.1c-5.43 0-9.83 4.4-9.83 9.83 0 3 1.38 5.73 3.6 7.5l-1.33 5.45L6.5 23c.73.23 1.5.35 2.28.35h.03c5.43 0 9.83-4.4 9.83-9.83S17.38 3.7 11.93 3.7z"/>
+  </svg>
+);
+
+
 type ProductActionsProps = {
   product: Product;
 };
 
 export default function ProductActions({ product }: ProductActionsProps) {
-  const { addToCart, clearCartAndAdd } = useCart(); // Assuming clearCartAndAdd exists
+  const { addToCart } = useCart();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleAddToCart = () => {
@@ -20,12 +28,7 @@ export default function ProductActions({ product }: ProductActionsProps) {
   };
 
   const handleBuyNow = () => {
-    // A "Buy Now" action should checkout only this single item.
-    // We can handle this by clearing the cart and adding just this one.
-    // This logic needs to be added to CartContext. For now, we'll just open the modal.
-    // A better approach might be to pass the specific item to the checkout form.
-    // For now, let's just add to cart and open modal.
-    addToCart(product);
+    addToCart(product); // Simplified: adds to cart and opens checkout
     setIsModalOpen(true);
   };
 
@@ -38,24 +41,25 @@ export default function ProductActions({ product }: ProductActionsProps) {
 
   return (
     <>
-      <div className="flex flex-col space-y-3">
+      <div className="flex items-center justify-between space-x-2">
         <button
           onClick={handleBuyNow}
-          className="w-full bg-green-500 text-white font-bold py-3 rounded-lg hover:bg-green-600 transition-colors"
+          className="flex-1 h-11 bg-black text-white text-sm font-bold rounded-lg hover:scale-105 transition-transform"
         >
-          Acheter maintenant
+          Buy Now
         </button>
         <button
           onClick={handleAddToCart}
-          className="w-full bg-blue-500 text-white font-bold py-3 rounded-lg hover:bg-blue-600 transition-colors"
+          className="flex-1 h-11 bg-[#D9D9D9] text-[#2E2E2E] text-sm font-bold rounded-lg hover:scale-105 transition-transform"
         >
-          Ajouter au panier
+          Add to Cart
         </button>
         <button
           onClick={handleWhatsAppOrder}
-          className="w-full bg-gray-200 text-gray-800 font-bold py-3 rounded-lg hover:bg-gray-300 transition-colors"
+          className="flex-1 h-11 bg-[#25D366] text-white text-sm font-bold rounded-lg flex items-center justify-center space-x-2 hover:scale-105 transition-transform"
         >
-          Commander via WhatsApp
+          <WhatsAppIcon />
+          <span>WhatsApp</span>
         </button>
       </div>
 
