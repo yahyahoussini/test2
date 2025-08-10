@@ -36,7 +36,6 @@ async function getProducts(filters: Partial<FilterValues>): Promise<Product[]> {
 export default function ShopPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [gridLayout, setGridLayout] = useState('grid-cols-2');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [activeFilters, setActiveFilters] = useState<Partial<FilterValues>>({});
 
@@ -66,31 +65,54 @@ export default function ShopPage() {
     setActiveFilters(prev => ({...prev, productName: search}));
   }
 
+  const hasActiveFilters = Object.values(activeFilters).some(value => value);
+
   return (
-    <div className="bg-gray-50 min-h-screen">
-      <div className="p-4 bg-gray-50 sticky top-0 z-10">
-        <div className="flex items-center gap-4">
-          <form onSubmit={handleSearch} className="relative flex-grow">
-            <input type="text" name="search" placeholder="Search..." className="w-full p-3 pl-10 rounded-lg bg-white border border-gray-200" />
-            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-          </form>
-          <button onClick={() => setIsFilterOpen(true)} className="p-3 bg-white border border-gray-200 rounded-lg">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" x2="4" y1="21" y2="14"/><line x1="4" x2="4" y1="10" y2="3"/><line x1="12" x2="12" y1="21" y2="12"/><line x1="12" x2="12" y1="8" y2="3"/><line x1="20" x2="20" y1="21" y2="16"/><line x1="20"x2="20" y1="12" y2="3"/><line x1="2" x2="6" y1="14"/><line x1="10" x2="14" y1="8"/><line x1="18" x2="22" y1="16"/></svg>
+    <div className="min-h-screen">
+      {/* Header Area */}
+      <div className="h-[56px] w-full bg-brand-beige-DEFAULT sticky top-0 z-20 border-b border-brand-border">
+        <div className="p-2 flex items-center gap-3 h-full max-w-7xl mx-auto">
+          {/* Search Field */}
+          <div className="relative flex-grow">
+            <input
+              type="text"
+              placeholder="Search..."
+              className="w-full h-[44px] pl-10 pr-4 rounded-input bg-white text-brand-brown placeholder-brand-placeholder shadow-input focus:outline-none focus:ring-1 focus:ring-brand-border focus:ring-offset-2 focus:ring-offset-brand-beige"
+            />
+            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-brand-gray" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          </div>
+          {/* Filter Icon Button */}
+          <button
+            onClick={() => setIsFilterOpen(true)}
+            className={`w-[44px] h-[44px] flex items-center justify-center rounded-btn transition-colors ${hasActiveFilters ? 'bg-brand-brown hover:bg-brand-brown/90' : 'bg-[#F0E9E1] hover:bg-[#E7DFD6]'}`}
+          >
+            <svg className={`w-6 h-6 ${hasActiveFilters ? 'text-white' : 'text-brand-brown'}`} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="4" x2="4" y1="21" y2="14"/><line x1="4" x2="4" y1="10" y2="3"/><line x1="12" x2="12" y1="21" y2="12"/><line x1="12" x2="12" y1="8" y2="3"/><line x1="20" x2="20" y1="21" y2="16"/><line x1="20"x2="20" y1="12" y2="3"/><line x1="2" x2="6" y1="14"/><line x1="10" x2="14" y1="8"/><line x1="18" x2="22" y1="16"/></svg>
           </button>
         </div>
       </div>
 
-      <div className="p-4">
+      {/* Filter Chips Row */}
+      <div className="p-4 max-w-7xl mx-auto">
+        <div className="flex items-center gap-2 overflow-x-auto">
+          {/* Placeholder for filter chips */}
+          <button className="px-4 h-8 rounded-pill bg-brand-brown text-white text-sm shadow-chip-active whitespace-nowrap">Best Selling</button>
+          <button className="px-4 h-8 rounded-pill bg-brand-beige-light border border-brand-border text-brand-gray-dark text-sm whitespace-nowrap">Skin Care</button>
+          <button className="px-4 h-8 rounded-pill bg-brand-beige-light border border-brand-border text-brand-gray-dark text-sm whitespace-nowrap">Shampoo</button>
+        </div>
+      </div>
+
+      {/* Product Grid */}
+      <div className="px-4 pb-4 max-w-7xl mx-auto">
         {loading ? (
-          <div className={`grid ${gridLayout} gap-4 sm:gap-6`}>
+          <div className="grid grid-cols-1 xs:grid-cols-2 gap-4 sm:gap-6">
             {Array.from({ length: 8 }).map((_, index) => (<ProductCardSkeleton key={index} />))}
           </div>
         ) : products.length > 0 ? (
-          <div className={`grid ${gridLayout} gap-4 sm:gap-6`}>
+          <div className="grid grid-cols-1 xs:grid-cols-2 gap-4 sm:gap-6">
             {products.map((product) => (<ProductCard key={product.id} product={product} />))}
           </div>
         ) : (
-          <p>Aucun produit ne correspond à vos filtres.</p>
+          <p className="text-center py-10 text-brand-gray-dark">Aucun produit ne correspond à vos filtres.</p>
         )}
       </div>
 
