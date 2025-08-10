@@ -7,15 +7,21 @@ type Post = {
 };
 
 async function getPost(slug: string): Promise<Post> {
-  const res = await fetch(`http://localhost:3001/api/blog/${slug}`, { cache: 'no-store' });
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+  const res = await fetch(`${apiUrl}/api/blog/${slug}`, { cache: 'no-store' });
   if (!res.ok) {
     throw new Error('Failed to fetch post');
   }
   return res.json();
 }
 
-export default async function BlogPostPage({ params }: { params: { slug: string } }) {
-  const post = await getPost(params.slug);
+type Props = {
+  params: Promise<{ slug: string }>;
+};
+
+export default async function BlogPostPage({ params }: Props) {
+  const { slug } = await params;
+  const post = await getPost(slug);
 
   return (
     <article>
@@ -31,8 +37,9 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
 }
 
 // Optional: Add metadata function to set the page title dynamically
-export async function generateMetadata({ params }: { params: { slug: string } }) {
-  const post = await getPost(params.slug);
+export async function generateMetadata({ params }: Props) {
+  const { slug } = await params;
+  const post = await getPost(slug);
   return {
     title: `${post.title} | MaBoutique Blog`,
     description: post.content.substring(0, 160),

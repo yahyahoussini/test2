@@ -4,16 +4,22 @@ import ProductImageGallery from '@/components/ProductImageGallery';
 
 async function getProduct(slug: string): Promise<Product | null> {
   try {
-    const res = await fetch(`http://localhost:3001/api/products/${slug}`, { cache: 'no-store' });
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+    const res = await fetch(`${apiUrl}/api/products/${slug}`, { cache: 'no-store' });
     if (!res.ok) return null;
     return res.json();
-  } catch (error) {
+  } catch {
     return null;
   }
 }
 
-export default async function ProductDetailPage({ params }: { params: { slug: string } }) {
-  const product = await getProduct(params.slug);
+type Props = {
+  params: Promise<{ slug: string }>;
+};
+
+export default async function ProductDetailPage({ params }: Props) {
+  const { slug } = await params;
+  const product = await getProduct(slug);
 
   if (!product) {
     return <div className="text-center py-10">Produit non trouvé.</div>;
@@ -53,8 +59,9 @@ export default async function ProductDetailPage({ params }: { params: { slug: st
   );
 }
 
-export async function generateMetadata({ params }: { params: { slug:string } }) {
-  const product = await getProduct(params.slug);
+export async function generateMetadata({ params }: Props) {
+  const { slug } = await params;
+  const product = await getProduct(slug);
   if (!product) return { title: 'Produit non trouvé' };
   return {
     title: `${product.name} | MaBoutique`,

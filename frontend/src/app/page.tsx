@@ -5,7 +5,7 @@ export default function HomePage() {
         Bienvenue chez MaBoutique
       </h1>
       <p className="text-lg text-center text-gray-700">
-        Votre destination unique pour des produits incroyables. Explorez notre collection dès aujourd'hui!
+        Votre destination unique pour des produits incroyables. Explorez notre collection dès aujourd&apos;hui!
       </p>
       {/* We can add featured products or promotional banners here later */}
     </div>

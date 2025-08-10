@@ -33,7 +33,8 @@ export default function CheckoutForm({ onOrderConfirmed }: CheckoutFormProps) {
     };
 
     try {
-      const res = await fetch('http://localhost:3001/api/orders', {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+      const res = await fetch(`${apiUrl}/api/orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderData),

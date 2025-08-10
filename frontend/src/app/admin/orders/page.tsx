@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '@/context/AdminAuthContext';
 import { useRouter } from 'next/navigation';
 
@@ -19,7 +19,7 @@ export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     try {
       const res = await fetch('/api/admin/orders', {
         headers: { 'Authorization': `Bearer ${token}` },
@@ -32,7 +32,7 @@ export default function AdminOrdersPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -40,7 +40,7 @@ export default function AdminOrdersPage() {
       return;
     }
     fetchOrders();
-  }, [isAuthenticated, router, token]);
+  }, [isAuthenticated, router, fetchOrders]);
 
   const handleStatusChange = async (orderId: number, newStatus: string) => {
     try {

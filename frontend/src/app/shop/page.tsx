@@ -21,7 +21,8 @@ async function getProducts(filters: Partial<FilterValues>): Promise<Product[]> {
   }
 
   try {
-    const res = await fetch(`http://localhost:3001/api/products?${params.toString()}`, { cache: 'no-store' });
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+    const res = await fetch(`${apiUrl}/api/products?${params.toString()}`, { cache: 'no-store' });
     if (!res.ok) {
       console.error('Failed to fetch products:', res.status, res.statusText);
       return [];
@@ -56,13 +57,6 @@ export default function ShopPage() {
 
   const handleResetFilters = () => {
     setActiveFilters({});
-  }
-
-  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const search = formData.get('search') as string;
-    setActiveFilters(prev => ({...prev, productName: search}));
   }
 
   const hasActiveFilters = Object.values(activeFilters).some(value => value);

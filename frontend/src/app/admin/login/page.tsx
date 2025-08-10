@@ -25,8 +25,12 @@ export default function LoginPage() {
 
       const { token } = await res.json();
       login(token);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unknown error occurred');
+      }
     }
   };
 

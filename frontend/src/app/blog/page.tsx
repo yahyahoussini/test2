@@ -9,7 +9,8 @@ type Post = {
 
 async function getPosts(): Promise<Post[]> {
   // In a real app, the base URL would come from an environment variable
-  const res = await fetch('http://localhost:3001/api/blog', { cache: 'no-store' });
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+  const res = await fetch(`${apiUrl}/api/blog`, { cache: 'no-store' });
   if (!res.ok) {
     throw new Error('Failed to fetch posts');
   }

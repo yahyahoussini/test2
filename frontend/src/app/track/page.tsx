@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 type OrderStatus = {
@@ -9,7 +9,7 @@ type OrderStatus = {
   created_at: string;
 };
 
-export default function TrackOrderPage() {
+function TrackOrderForm() {
   const searchParams = useSearchParams();
   const initialTrackingNumber = searchParams.get('number') || '';
 
@@ -31,14 +31,19 @@ export default function TrackOrderPage() {
     }
 
     try {
-      const res = await fetch(`http://localhost:3001/api/track/${trackingNumber}`);
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+      const res = await fetch(`${apiUrl}/api/track/${trackingNumber}`);
       if (!res.ok) {
         throw new Error('Commande non trouvée ou erreur du serveur.');
       }
       const data: OrderStatus = await res.json();
       setOrderStatus(data);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unknown error occurred');
+      }
     } finally {
       setLoading(false);
     }
@@ -75,5 +80,13 @@ export default function TrackOrderPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function TrackOrderPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <TrackOrderForm />
+    </Suspense>
   );
 }
