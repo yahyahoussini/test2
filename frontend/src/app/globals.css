@@ -5,15 +5,13 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  body {
-    @apply bg-brand-beige-dark text-brand-gray-dark;
-    font-family: theme('fontFamily.secondary');
-    background-image: linear-gradient(to bottom, #F5F1EC, #EFEAE5);
-  }
+body {
+  @apply bg-brand-beige-dark text-brand-gray-dark;
+  font-family: 'Open Sans', sans-serif;
+  background-image: linear-gradient(to bottom, #F5F1EC, #EFEAE5);
+}
 
-  h1, h2, h3, h4, h5, h6 {
-    font-family: theme('fontFamily.primary');
-    @apply text-brand-brown;
-  }
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Avenir Next', 'Helvetica Neue', 'Arial', sans-serif;
+  @apply text-brand-brown;
 }

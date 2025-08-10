@@ -17,20 +17,14 @@ const config = {
     },
     extend: {
       colors: {
-        'brand-beige': {
-          light: '#F5F1EC',
-          DEFAULT: '#F3EEE7',
-          dark: '#EFEAE5',
-        },
-        'brand-brown': {
-          dark: '#2D221B',
-          DEFAULT: '#2A2522',
-        },
-        'brand-gray': {
-          light: '#E7E0D8',
-          DEFAULT: '#8A837E',
-          dark: '#5E5853',
-        },
+        'brand-beige-light': '#F5F1EC',
+        'brand-beige': '#F3EEE7',
+        'brand-beige-dark': '#EFEAE5',
+        'brand-brown-dark': '#2D221B',
+        'brand-brown': '#2A2522',
+        'brand-gray-light': '#E7E0D8',
+        'brand-gray': '#8A837E',
+        'brand-gray-dark': '#5E5853',
         'brand-border': '#D9D2CA',
         'brand-placeholder': '#A9A29C',
       },
