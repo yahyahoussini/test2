@@ -1,0 +1,10 @@
+{
+  "name": "ecommerce-webapp",
+  "private": true,
+  "scripts": {
+    "dev:backend": "pnpm --filter backend dev",
+    "dev:frontend": "pnpm --filter frontend dev",
+    "dev": "pnpm run --parallel \"/^dev:.*/\""
+  },
+  "devDependencies": {}
+}

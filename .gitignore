@@ -1,0 +1,30 @@
+# Dependencies
+/node_modules
+/backend/node_modules
+/frontend/node_modules
+/.pnpm-store
+
+# Next.js build output
+/frontend/.next/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Local env files
+.env*.local
+*.env
+
+# IDE and OS files
+.DS_Store
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
