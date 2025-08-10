@@ -37,10 +37,10 @@ export default async function ProductDetailPage({ params }: { params: { slug: st
         {/* Product Info Section */}
         <div className="text-center px-6 py-4 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
           <h1 className="text-2xl text-[#1E1E1E]" style={{ fontFamily: 'var(--font-primary)', fontWeight: 'bold' }}>
-            Nourish with the Best
+            {product.name}
           </h1>
           <p className="text-md text-[#4A4A4A] mt-2 leading-relaxed" style={{ fontFamily: 'var(--font-body)' }}>
-            Discover personalized hair and skincare solutions tailored to your unique needs.
+            {product.description}
           </p>
         </div>
 

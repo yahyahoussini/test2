@@ -7,6 +7,8 @@ interface CartContextType {
   cartItems: CartItem[];
   addToCart: (product: Product) => void;
   clearCart: () => void;
+  setCartForCheckout: (product: Product) => void;
+  restoreCart: () => void;
   // We will add more functions like removeFromCart, updateQuantity later
 }
 
@@ -14,9 +16,22 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [stashedCart, setStashedCart] = useState<CartItem[] | null>(null);
 
   const clearCart = () => {
     setCartItems([]);
+  };
+
+  const setCartForCheckout = (product: Product) => {
+    setStashedCart(cartItems); // Save the current cart
+    setCartItems([{ product, quantity: 1 }]); // Set cart to only the single item
+  };
+
+  const restoreCart = () => {
+    if (stashedCart !== null) {
+      setCartItems(stashedCart);
+      setStashedCart(null);
+    }
   };
 
   const addToCart = (product: Product) => {
@@ -38,7 +53,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <CartContext.Provider value={{ cartItems, addToCart, clearCart }}>
+    <CartContext.Provider value={{ cartItems, addToCart, clearCart, setCartForCheckout, restoreCart }}>
       {children}
     </CartContext.Provider>
   );

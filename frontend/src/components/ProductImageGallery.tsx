@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import Image from 'next/image';
 
 type ProductImageGalleryProps = {
@@ -9,22 +9,45 @@ type ProductImageGalleryProps = {
 
 export default function ProductImageGallery({ images }: ProductImageGalleryProps) {
   const [activeIndex, setActiveIndex] = useState(0);
+  const touchStartX = useRef(0);
+  const touchEndX = useRef(0);
 
   if (!images || images.length === 0) {
-    images = ['/placeholder.svg']; // Default placeholder
+    images = ['/placeholder.svg'];
   }
 
   const handleThumbnailClick = (index: number) => {
     setActiveIndex(index);
   };
 
-  // Basic swipe logic would be added here using onTouchStart, onTouchMove, onTouchEnd
-  // For simplicity in this step, we'll focus on the thumbnail click functionality.
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.targetTouches[0].clientX;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.targetTouches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    if (touchStartX.current - touchEndX.current > 75) {
+      // Swiped left
+      setActiveIndex(prev => (prev === images.length - 1 ? 0 : prev + 1));
+    }
+
+    if (touchStartX.current - touchEndX.current < -75) {
+      // Swiped right
+      setActiveIndex(prev => (prev === 0 ? images.length - 1 : prev - 1));
+    }
+  };
 
   return (
     <div className="relative w-full">
-      {/* Main Image Display */}
-      <div className="relative w-full h-96 mb-4">
+      <div
+        className="relative w-full h-96 mb-4 overflow-hidden"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
         {images.map((src, index) => (
           <Image
             key={src}
@@ -37,7 +60,6 @@ export default function ProductImageGallery({ images }: ProductImageGalleryProps
         ))}
       </div>
 
-      {/* Thumbnails */}
       <div className="flex justify-center space-x-2 p-2">
         {images.map((src, index) => (
           <button
@@ -45,12 +67,7 @@ export default function ProductImageGallery({ images }: ProductImageGalleryProps
             onClick={() => handleThumbnailClick(index)}
             className={`w-16 h-16 relative rounded-md overflow-hidden border-2 transition-colors ${activeIndex === index ? 'border-black' : 'border-transparent'}`}
           >
-            <Image
-              src={src}
-              alt={`Thumbnail ${index + 1}`}
-              fill
-              style={{ objectFit: 'cover' }}
-            />
+            <Image src={src} alt={`Thumbnail ${index + 1}`} fill style={{ objectFit: 'cover' }} />
           </button>
         ))}
       </div>
