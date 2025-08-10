@@ -1,62 +1,54 @@
 const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../middleware/authMiddleware');
+const db = require('../db');
 
 router.use(authMiddleware);
 
-router.get('/analytics', (req, res) => {
-  // Access the mock data passed from index.js
-  const orders = router.mockOrders || [];
-  const products = router.mockProducts || [];
+router.get('/analytics', async (req, res) => {
+  try {
+    // 1. Calculate Actual and Potential Revenue, and Order Counts
+    const revenueQuery = `
+      SELECT
+        COALESCE(SUM(CASE WHEN status = 'Delivered' THEN total_price ELSE 0 END), 0) as "actualRevenue",
+        COALESCE(SUM(CASE WHEN status = 'Returned' THEN 45 ELSE 0 END), 0) as "returnedFees",
+        COALESCE(SUM(CASE WHEN status IN ('Confirmed', 'Shipped') THEN total_price ELSE 0 END), 0) as "potentialRevenue",
+        json_object_agg(status, count) as "orderCounts"
+      FROM (
+        SELECT status, COUNT(*) as count
+        FROM orders
+        GROUP BY status
+      ) as status_counts;
+    `;
+    const revenueRes = await db.query(revenueQuery);
+    const { actualRevenue, returnedFees, potentialRevenue, orderCounts } = revenueRes.rows[0];
+    const finalActualRevenue = parseFloat(actualRevenue) - parseFloat(returnedFees);
 
-  let actualRevenue = 0;
-  let potentialRevenue = 0;
-  const orderCounts = {
-    Pending: 0, Confirmed: 0, Shipped: 0, Delivered: 0, Canceled: 0, Returned: 0
-  };
-  const productSales = {};
+    // 2. Get Top Selling Products
+    const topProductsQuery = `
+      SELECT p.name, SUM(oi.quantity) as sales
+      FROM order_items oi
+      JOIN orders o ON o.id = oi.order_id
+      JOIN products p ON p.id = oi.product_id
+      WHERE o.status = 'Delivered'
+      GROUP BY p.name
+      ORDER BY sales DESC
+      LIMIT 5;
+    `;
+    const topProductsRes = await db.query(topProductsQuery);
 
-  for (const order of orders) {
-    if (order.status && orderCounts.hasOwnProperty(order.status)) {
-        orderCounts[order.status]++;
-    }
+    const analyticsData = {
+      actualRevenue: finalActualRevenue.toFixed(2),
+      potentialRevenue: parseFloat(potentialRevenue).toFixed(2),
+      orderCounts: orderCounts || {}, // Handle case with no orders
+      topSellingProducts: topProductsRes.rows,
+    };
 
-    if (order.status === 'Delivered') {
-      actualRevenue += parseFloat(order.total_price);
-      // Track sales for delivered items
-      order.items.forEach(item => {
-        productSales[item.product.id] = (productSales[item.product.id] || 0) + item.quantity;
-      });
-    } else if (order.status === 'Returned') {
-      actualRevenue -= 45; // The 45dh fee
-    } else if (order.status === 'Confirmed' || order.status === 'Shipped') {
-      potentialRevenue += parseFloat(order.total_price);
-    }
+    res.json(analyticsData);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
   }
-
-  const topSellingProducts = Object.entries(productSales)
-    .sort(([, salesA], [, salesB]) => salesB - salesA)
-    .slice(0, 5) // Top 5 products
-    .map(([productId, sales]) => {
-      const product = products.find(p => p.id == productId);
-      return {
-        name: product ? product.name : `Product ID ${productId}`,
-        sales,
-      };
-    });
-
-  const analyticsData = {
-    actualRevenue: actualRevenue.toFixed(2),
-    potentialRevenue: potentialRevenue.toFixed(2),
-    orderCounts,
-    topSellingProducts,
-  };
-
-  res.json(analyticsData);
 });
-
-// Properties to hold the shared mock data
-router.mockOrders = [];
-router.mockProducts = [];
 
 module.exports = router;

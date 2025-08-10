@@ -1,55 +1,69 @@
 const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../middleware/authMiddleware');
-
-// Mock data - in a real app, this would interact with the database
-let mockProducts = [
-  { id: 1, name: 'Produit Fantastique', slug: 'produit-fantastique', price: '99.99', stock: 15 },
-  { id: 2, name: 'Article Incroyable', slug: 'article-incroyable', price: '49.50', stock: 30 },
-];
+const db = require('../db');
 
 // All these routes are protected
 router.use(authMiddleware);
 
 // GET /api/admin/products - Get all products for admin view
-router.get('/', (req, res) => {
-  res.json(mockProducts);
+router.get('/', async (req, res) => {
+  try {
+    const { rows } = await db.query('SELECT * FROM products ORDER BY created_at DESC');
+    res.json(rows);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
 });
 
 // POST /api/admin/products - Create a new product
-router.post('/', (req, res) => {
-  const { name, price, stock, description, slug } = req.body;
-  const newProduct = {
-    id: mockProducts.length + 1,
-    name, price, stock, description, slug
-  };
-  mockProducts.push(newProduct);
-  res.status(201).json(newProduct);
+router.post('/', async (req, res) => {
+  try {
+    const { name, slug, description, price, stock, images, seo_title, seo_description } = req.body;
+    const { rows } = await db.query(
+      'INSERT INTO products (name, slug, description, price, stock, images, seo_title, seo_description) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
+      [name, slug, description, price, stock, images, seo_title, seo_description]
+    );
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
 });
 
 // PUT /api/admin/products/:id - Update a product
-router.put('/:id', (req, res) => {
-  const { id } = req.params;
-  const { name, price, stock, description, slug } = req.body;
-  const productIndex = mockProducts.findIndex(p => p.id == id);
-  if (productIndex === -1) {
-    return res.status(404).json({ message: 'Product not found' });
+router.put('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, slug, description, price, stock, images, seo_title, seo_description } = req.body;
+    const { rows } = await db.query(
+      'UPDATE products SET name = $1, slug = $2, description = $3, price = $4, stock = $5, images = $6, seo_title = $7, seo_description = $8, updated_at = NOW() WHERE id = $9 RETURNING *',
+      [name, slug, description, price, stock, images, seo_title, seo_description, id]
+    );
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+    res.json(rows[0]);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
   }
-  const updatedProduct = { ...mockProducts[productIndex], name, price, stock, description, slug };
-  mockProducts[productIndex] = updatedProduct;
-  res.json(updatedProduct);
 });
 
 // DELETE /api/admin/products/:id - Delete a product
-router.delete('/:id', (req, res) => {
-  const { id } = req.params;
-  const productIndex = mockProducts.findIndex(p => p.id == id);
-  if (productIndex === -1) {
-    return res.status(404).json({ message: 'Product not found' });
+router.delete('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await db.query('DELETE FROM products WHERE id = $1', [id]);
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+    res.status(204).send();
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
   }
-  mockProducts.splice(productIndex, 1);
-  res.status(204).send();
 });
 
-router.mockProducts = mockProducts;
 module.exports = router;

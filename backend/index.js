@@ -17,21 +17,21 @@ const adminProductRoutes = require('./routes/adminProducts');
 const adminOrderRoutes = require('./routes/adminOrders');
 const adminAnalyticsRoutes = require('./routes/adminAnalytics');
 
-// A hack to share the mock data arrays between routes
-orderRoutes.mockOrders = adminOrderRoutes.mockOrders;
-adminAnalyticsRoutes.mockOrders = adminOrderRoutes.mockOrders;
-adminAnalyticsRoutes.mockProducts = adminProductRoutes.mockProducts;
-
 // Use routes
 app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/blog', blogRoutes);
 app.use('/api', orderRoutes); // Using /api as base for /orders and /track
 
+const adminCategoryRoutes = require('./routes/adminCategories');
+const adminBlogRoutes = require('./routes/adminBlog');
+
 // Admin routes
 app.use('/api/admin', adminAuthRoutes);
 app.use('/api/admin/products', adminProductRoutes);
 app.use('/api/admin/orders', adminOrderRoutes);
+app.use('/api/admin/categories', adminCategoryRoutes);
+app.use('/api/admin/blog', adminBlogRoutes);
 app.use('/api/admin', adminAnalyticsRoutes);
 
 app.get('/api', (req, res) => {

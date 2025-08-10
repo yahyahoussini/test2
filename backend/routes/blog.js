@@ -1,28 +1,12 @@
 const express = require('express');
 const router = express.Router();
-
-// Mock data for blog posts
-const mockBlogPosts = [
-  {
-    id: 1,
-    title: 'Notre Lancement de Boutique',
-    slug: 'notre-lancement-de-boutique',
-    content: 'Nous sommes ravis de vous annoncer le lancement de notre nouvelle boutique en ligne!',
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: 2,
-    title: 'Top 5 des Produits de la Saison',
-    slug: 'top-5-produits-saison',
-    content: 'Découvrez notre sélection des meilleurs produits pour cette saison.',
-    created_at: new Date().toISOString(),
-  },
-];
+const db = require('../db');
 
 // GET /api/blog - Get all blog posts
 router.get('/', async (req, res) => {
   try {
-    res.json(mockBlogPosts);
+    const { rows } = await db.query('SELECT id, title, slug, content, created_at FROM blog_posts ORDER BY created_at DESC');
+    res.json(rows);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
@@ -33,8 +17,8 @@ router.get('/', async (req, res) => {
 router.get('/:slug', async (req, res) => {
   try {
     const { slug } = req.params;
-    const post = mockBlogPosts.find(p => p.slug === slug);
-
+    const { rows } = await db.query('SELECT * FROM blog_posts WHERE slug = $1', [slug]);
+    const post = rows[0];
     if (!post) {
       return res.status(404).json({ message: 'Article non trouvé' });
     }

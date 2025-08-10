@@ -12,4 +12,6 @@ const pool = new Pool({
 module.exports = {
   // A query function that will be used throughout the app
   query: (text, params) => pool.query(text, params),
+  getClient: () => pool.connect(),
+  pool, // Export the pool itself for more complex operations
 };
